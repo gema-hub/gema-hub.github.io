@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🔐 gemIA - Acceso</title>
+  <!-- ✅ Corregido: URLs sin espacios -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -22,7 +23,7 @@
     @media (prefers-color-scheme: dark) {
       :root {
         --bg: #111827;
-        --card-bg: #1f2937;
+        --card-bg: #1e293b;
         --text: #f9fafb;
         --text-light: #d1d5db;
         --border: #374151;
@@ -169,10 +170,22 @@
       <div class="switch-form">
         <span id="switchText">¿No tienes cuenta? <a id="showRegister">Regístrate</a></span>
       </div>
-  <script>
-    // 👇 ¡CAMBIA ESTO POR TU URL DE PLAYIT.GG!
-    const API = "must-point.gl.at.ply.gg/api";
 
+      <!-- 💡 Pista de usuario demo -->
+      <div class="demo-hint">
+        Usuario demo: <strong>dfgs / 1234</strong>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 🔧 CONFIGURACIÓN DE API
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const API_BASE = isLocal 
+      ? 'http://localhost:3000/api' 
+      : 'https://must-point.gl.at.ply.gg/api'; // ✅ Protocolo HTTPS explícito
+
+    // Alternar formularios
     document.getElementById('showRegister').addEventListener('click', e => {
       e.preventDefault();
       document.getElementById('loginForm').style.display = 'none';
@@ -182,7 +195,7 @@
     });
 
     function showLogin(e) {
-      e.preventDefault();
+      e?.preventDefault();
       document.getElementById('registerForm').style.display = 'none';
       document.getElementById('loginForm').style.display = 'block';
       document.getElementById('switchText').innerHTML = '¿No tienes cuenta? <a id="showRegister">Regístrate</a>';
@@ -198,14 +211,14 @@
     // Login
     document.getElementById('loginForm').addEventListener('submit', async e => {
       e.preventDefault();
-      const u = document.getElementById('loginUser').value;
+      const u = document.getElementById('loginUser').value.trim();
       const p = document.getElementById('loginPass').value;
       const btn = document.getElementById('loginBtn');
       const err = document.getElementById('loginError');
       btn.disabled = true; err.style.display = 'none';
 
       try {
-        const res = await fetch(`${API}/login`, {
+        const res = await fetch(`${API_BASE}/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username: u, password: p })
@@ -216,29 +229,31 @@
           localStorage.setItem('username', data.username);
           window.location.href = 'index.html';
         } else {
-          err.textContent = data.error || 'Error';
+          err.textContent = data.error || 'Credenciales inválidas';
           err.style.display = 'block';
         }
       } catch (ex) {
-        err.textContent = "❌ IA fuera de línea. ¿Tu PC está encendida?";
+        err.textContent = "❌ No se puede conectar al servidor. ¿Tu PC está encendida?";
         err.style.display = 'block';
       } finally {
         btn.disabled = false;
       }
     });
 
-    // Register
+    // Registro
     document.getElementById('registerForm').addEventListener('submit', async e => {
       e.preventDefault();
-      const u = document.getElementById('regUser').value;
+      const u = document.getElementById('regUser').value.trim();
       const p = document.getElementById('regPass').value;
       const btn = document.getElementById('registerBtn');
       const err = document.getElementById('registerError');
       const suc = document.getElementById('registerSuccess');
       btn.disabled = true; err.style.display = 'none'; suc.style.display = 'none';
 
+      if (u.length < 3 || p.length < 6) return;
+
       try {
-        const res = await fetch(`${API}/register`, {
+        const res = await fetch(`${API_BASE}/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username: u, password: p })
@@ -250,23 +265,27 @@
           setTimeout(() => {
             document.getElementById('regUser').value = '';
             document.getElementById('regPass').value = '';
-            showLogin({ preventDefault: () => {} });
+            showLogin();
           }, 1500);
         } else {
-          err.textContent = data.error || 'Error';
+          err.textContent = data.error || 'Error al registrar';
           err.style.display = 'block';
         }
       } catch (ex) {
-        err.textContent = "❌ IA fuera de línea. ¿Tu PC está encendida?";
+        err.textContent = "❌ No se puede conectar al servidor.";
         err.style.display = 'block';
       } finally {
         btn.disabled = false;
       }
     });
 
-    // Enter
-    document.getElementById('loginPass').addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('loginForm').dispatchEvent(new Event('submit')); });
-    document.getElementById('regPass').addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('registerForm').dispatchEvent(new Event('submit')); });
+    // Soporte para Enter
+    document.getElementById('loginPass').addEventListener('keypress', e => {
+      if (e.key === 'Enter') document.getElementById('loginForm').requestSubmit();
+    });
+    document.getElementById('regPass').addEventListener('keypress', e => {
+      if (e.key === 'Enter') document.getElementById('registerForm').requestSubmit();
+    });
   </script>
 </body>
 </html>

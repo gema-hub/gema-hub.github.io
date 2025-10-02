@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>gemIA</title>
+  <!-- ✅ Corregido: sin espacios en URLs -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -24,6 +25,7 @@
       --credits-bg: #fee2e2;
       --credits-text: #b91c1c;
     }
+
     @media (prefers-color-scheme: dark) {
       :root {
         --bg-primary: #0f172a;
@@ -39,13 +41,21 @@
         --credits-text: #fca5a5;
       }
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
       background: var(--bg-primary);
       color: var(--text-primary);
       line-height: 1.6;
+      transition: background-color 0.3s, color 0.3s;
     }
+
     .container {
       max-width: 900px;
       margin: 0 auto;
@@ -54,6 +64,7 @@
       flex-direction: column;
       min-height: 100vh;
     }
+
     header {
       display: flex;
       justify-content: space-between;
@@ -62,6 +73,7 @@
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border);
     }
+
     h1 {
       font-weight: 600;
       font-size: 1.8rem;
@@ -69,11 +81,13 @@
       align-items: center;
       gap: 10px;
     }
+
     .header-right {
       display: flex;
       align-items: center;
       gap: 16px;
     }
+
     .credits-badge {
       background: var(--credits-bg);
       color: var(--credits-text);
@@ -82,13 +96,18 @@
       font-weight: 600;
       font-size: 0.9rem;
     }
+
     #logout-link {
       font-size: 0.9rem;
       color: var(--text-secondary);
       text-decoration: none;
       transition: color 0.2s;
     }
-    #logout-link:hover { color: var(--accent); }
+
+    #logout-link:hover {
+      color: var(--accent);
+    }
+
     #chat {
       flex: 1;
       display: flex;
@@ -102,6 +121,7 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
       max-height: 60vh;
     }
+
     .message {
       max-width: 85%;
       padding: 14px 18px;
@@ -111,22 +131,26 @@
       white-space: pre-wrap;
       word-break: break-word;
     }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
     .user {
       background: var(--user-bubble);
       color: var(--user-text);
       align-self: flex-end;
       border-bottom-right-radius: 4px;
     }
+
     .ai {
       background: var(--ai-bubble);
       color: var(--ai-text);
       align-self: flex-start;
       border-bottom-left-radius: 4px;
     }
+
     .typing {
       align-self: flex-start;
       background: var(--ai-bubble);
@@ -136,15 +160,18 @@
       border-radius: 18px;
       border-bottom-left-radius: 4px;
     }
+
     .error {
       color: var(--error);
       background: rgba(239, 68, 68, 0.1);
       border-left: 3px solid var(--error);
     }
+
     .input-area {
       display: flex;
       gap: 12px;
     }
+
     #message {
       flex: 1;
       padding: 14px 18px;
@@ -156,10 +183,12 @@
       outline: none;
       transition: border-color 0.2s;
     }
+
     #message:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
     }
+
     button {
       background: var(--accent);
       color: white;
@@ -175,13 +204,30 @@
       justify-content: center;
       min-width: 100px;
     }
-    button:hover:not(:disabled) { background: var(--accent-hover); }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    button:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     @media (max-width: 600px) {
-      .container { padding: 16px; }
-      .message { max-width: 95%; }
-      .input-area { flex-direction: column; }
-      button { padding: 14px; min-width: auto; }
+      .container {
+        padding: 16px;
+      }
+      .message {
+        max-width: 95%;
+      }
+      .input-area {
+        flex-direction: column;
+      }
+      button {
+        padding: 14px;
+        min-width: auto;
+      }
     }
   </style>
 </head>
@@ -206,11 +252,17 @@
   </div>
 
   <script>
-    // 👇 ¡CAMBIA ESTO POR TU URL DE PLAYIT.GG!
-    const API = "must-point.gl.at.ply.gg/api";
+    // 🔧 CONFIGURACIÓN DE API
+    // Detecta si estás en GitHub Pages (frontend estático) o en localhost
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const API_BASE = isLocal 
+      ? 'http://localhost:3000/api' 
+      : 'https://must-point.gl.at.ply.gg/api'; // 👈 Tu URL de Playit.gg
 
     const token = localStorage.getItem('token');
-    if (!token) window.location.href = 'auth.html';
+    if (!token) {
+      window.location.href = 'auth.html';
+    }
 
     const chatBox = document.getElementById('chat');
     const messageInput = document.getElementById('message');
@@ -219,15 +271,18 @@
 
     async function updateCredits() {
       try {
-        const res = await fetch(`${API}/credits`, {
+        const res = await fetch(`${API_BASE}/credits`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (!res.ok) throw new Error();
+        if (!res.ok) throw new Error('No autorizado');
         const data = await res.json();
         document.getElementById('credit-count').textContent = data.credits;
         sendButton.disabled = data.credits <= 0;
       } catch (err) {
-        console.error('Error al cargar créditos');
+        console.error('Error al cargar créditos:', err);
+        // Opcional: redirigir a login si token inválido
+        // localStorage.removeItem('token');
+        // window.location.href = 'auth.html';
       }
     }
 
@@ -264,16 +319,20 @@
       showTyping();
 
       try {
-        const res = await fetch(`${API}/chat`, {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+        const res = await fetch(`${API_BASE}/chat`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({ message: msg }),
-          signal: AbortSignal.timeout(10000)
+          signal: controller.signal
         });
 
+        clearTimeout(timeoutId);
         hideTyping();
 
         if (!res.ok) {
@@ -292,9 +351,9 @@
       } catch (err) {
         hideTyping();
         if (err.name === 'AbortError') {
-          addMessage("❌ gemIA fuera de línea\nTiempo de espera agotado. ¿Tu PC está encendida?", 'ai', true);
+          addMessage("❌ Tiempo de espera agotado.\n¿Tu servidor está activo?", 'ai', true);
         } else if (err.message.includes('Failed to fetch')) {
-          addMessage("❌ gemIA fuera de línea\nNo se puede conectar al servidor local.", 'ai', true);
+          addMessage("❌ No se puede conectar al servidor.\nVerifica tu conexión o reinicia el backend.", 'ai', true);
         } else {
           addMessage(`❌ Error: ${err.message}`, 'ai', true);
         }
@@ -322,6 +381,7 @@
       }
     });
 
+    // Iniciar
     updateCredits();
     messageInput.focus();
   </script>
