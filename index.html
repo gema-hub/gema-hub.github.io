@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gemIA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --user-bubble: #e0f2fe;
+      --user-text: #0284c7;
+      --ai-bubble: #f1f5f9;
+      --ai-text: #1e293b;
+      --border: #e2e8f0;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --error: #ef4444;
+      --credits-bg: #fee2e2;
+      --credits-text: #b91c1c;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --text-primary: #f1f5f6;
+        --text-secondary: #94a3b8;
+        --user-bubble: #0c4a6e;
+        --user-text: #bae6fd;
+        --ai-bubble: #1e293b;
+        --ai-text: #e2e8f0;
+        --border: #334155;
+        --credits-bg: #1c1917;
+        --credits-text: #fca5a5;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    h1 {
+      font-weight: 600;
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .credits-badge {
+      background: var(--credits-bg);
+      color: var(--credits-text);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    #logout-link {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    #logout-link:hover { color: var(--accent); }
+    #chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 20px;
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      margin-bottom: 20px;
+      overflow-y: auto;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      max-height: 60vh;
+    }
+    .message {
+      max-width: 85%;
+      padding: 14px 18px;
+      border-radius: 18px;
+      animation: fadeIn 0.25s ease-out;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .user {
+      background: var(--user-bubble);
+      color: var(--user-text);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .ai {
+      background: var(--ai-bubble);
+      color: var(--ai-text);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .typing {
+      align-self: flex-start;
+      background: var(--ai-bubble);
+      color: var(--text-secondary);
+      font-style: italic;
+      padding: 12px 16px;
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+    }
+    .error {
+      color: var(--error);
+      background: rgba(239, 68, 68, 0.1);
+      border-left: 3px solid var(--error);
+    }
+    .input-area {
+      display: flex;
+      gap: 12px;
+    }
+    #message {
+      flex: 1;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #message:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 24px;
+      padding: 0 24px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 100px;
+    }
+    button:hover:not(:disabled) { background: var(--accent-hover); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    @media (max-width: 600px) {
+      .container { padding: 16px; }
+      .message { max-width: 95%; }
+      .input-area { flex-direction: column; }
+      button { padding: 14px; min-width: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>💬 gemIA</h1>
+      <div class="header-right">
+        <div class="credits-badge">Créditos: <span id="credit-count">0</span></div>
+        <a href="#" id="logout-link">Cerrar sesión</a>
+      </div>
+    </header>
+
+    <div id="chat">
+      <div class="ai">¡Hola! Soy gemIA, tu asistente inteligente. ¿En qué puedo ayudarte hoy?</div>
+    </div>
+
+    <div class="input-area">
+      <input type="text" id="message" placeholder="Escribe tu mensaje..." autocomplete="off" maxlength="1000" />
+      <button id="send-btn" onclick="sendMessage()">Enviar</button>
+    </div>
+  </div>
+
+  <script>
+    // 👇 ¡CAMBIA ESTO POR TU URL DE PLAYIT.GG!
+    const API = "must-point.gl.at.ply.gg:51552/api";
+
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = 'auth.html';
+
+    const chatBox = document.getElementById('chat');
+    const messageInput = document.getElementById('message');
+    const sendButton = document.getElementById('send-btn');
+    const logoutLink = document.getElementById('logout-link');
+
+    async function updateCredits() {
+      try {
+        const res = await fetch(`${API}/credits`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        document.getElementById('credit-count').textContent = data.credits;
+        sendButton.disabled = data.credits <= 0;
+      } catch (err) {
+        console.error('Error al cargar créditos');
+      }
+    }
+
+    function addMessage(text, sender, isError = false) {
+      const div = document.createElement('div');
+      div.className = `message ${sender} ${isError ? 'error' : ''}`;
+      div.textContent = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function showTyping() {
+      const typing = document.createElement('div');
+      typing.className = 'message typing';
+      typing.id = 'typing-indicator';
+      typing.textContent = 'gemIA está escribiendo...';
+      chatBox.appendChild(typing);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function hideTyping() {
+      const indicator = document.getElementById('typing-indicator');
+      if (indicator) indicator.remove();
+    }
+
+    async function sendMessage() {
+      const msg = messageInput.value.trim();
+      if (!msg) return;
+
+      addMessage(msg, 'user');
+      messageInput.value = '';
+      messageInput.disabled = true;
+      sendButton.disabled = true;
+      showTyping();
+
+      try {
+        const res = await fetch(`${API}/chat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ message: msg }),
+          signal: AbortSignal.timeout(10000)
+        });
+
+        hideTyping();
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || `Error ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (data.error) {
+          addMessage(`❌ ${data.error}`, 'ai', true);
+        } else {
+          addMessage(data.reply, 'ai');
+          document.getElementById('credit-count').textContent = data.remaining_credits;
+          if (data.remaining_credits <= 0) sendButton.disabled = true;
+        }
+      } catch (err) {
+        hideTyping();
+        if (err.name === 'AbortError') {
+          addMessage("❌ gemIA fuera de línea\nTiempo de espera agotado. ¿Tu PC está encendida?", 'ai', true);
+        } else if (err.message.includes('Failed to fetch')) {
+          addMessage("❌ gemIA fuera de línea\nNo se puede conectar al servidor local.", 'ai', true);
+        } else {
+          addMessage(`❌ Error: ${err.message}`, 'ai', true);
+        }
+      } finally {
+        messageInput.disabled = false;
+        sendButton.disabled = false;
+        messageInput.focus();
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = 'auth.html';
+    }
+
+    logoutLink.addEventListener('click', e => {
+      e.preventDefault();
+      logout();
+    });
+
+    messageInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    updateCredits();
+    messageInput.focus();
+  </script>
+</body>
+</html>
